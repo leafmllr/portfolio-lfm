@@ -6,6 +6,8 @@ const sqlite3 = require('sqlite3')
 const port = 8080 // defines the port
 const app = express() // creates the Express application
 
+// const session = require ('express-session'); // middleware for handling session data
+// const cookieParser = require ('cookie-parser'); // middleware to parse cookies & making them accessible
 
 // defines handlebars engine
 app.engine('handlebars', engine());
@@ -22,7 +24,7 @@ app.use(express.static('public'))
 
 
 
-// *********** MODEL DATA ***********
+// *********** MODEL (DATA) ***********
 
 // define the databases you will use
 const db = new sqlite3.Database('portfolio-lfm.db')
@@ -30,12 +32,12 @@ const db = new sqlite3.Database('portfolio-lfm.db')
 // creates table projects at startup
 db.run("CREATE TABLE projects (projectid INTEGER PRIMARY KEY, projectTitle TEXT NOT NULL, projectDesc TEXT NOT NULL, projectDate INTEGER NOT NULL, projectImgURL TEXT NOT NULL)", (error) => {
   if (error) {
-    console.log("ERROR: ", error)
+    console.log("CREATING ERROR: ", error)
   } else {
     const projects = [
       {"id":"1",
         "title":"'Der Hahn ist tot' | 'The Rooster is Dead'",
-        "desc":"Development and production of a short film. In a group of six people,  I conceptualised and realised the 5-minute comedy 'The Rooster is Dead' from the script to the final cut, focusing on camera and lighting,  production design,  colour grading and title design in post-production.",
+        "desc":"Development and production of a short film. In a group of six people,  I conceptualised and realised the 5-minute comedy 'The Rooster is Dead' from the script to the final cut, focusing on camera and lighting,  production design, colour grading and title design in post-production.",
         "date":"2023-03",
         "url":"public/img/theRoosterisDead.jpg"},
       {"id":"2",
@@ -79,7 +81,7 @@ db.run("CREATE TABLE projects (projectid INTEGER PRIMARY KEY, projectTitle TEXT 
     projects.forEach ( (oneProject) => {
       db.run("INSERT INTO projects (projectid, projectTitle, projectDesc, projectDate, projectImgURL) VALUES (?, ?, ?, ?, ?)", [oneProject.id, oneProject.title, oneProject.desc, oneProject.date, oneProject.url], (error) => {
         if (error) {
-          console.log("ERROR: ", error)
+          console.log("INSERT ERROR: ", error)
         } else {
           console.log("Line added into the projects table!")
         }
@@ -119,7 +121,7 @@ db.run ("CREATE TABLE skills (skillid INTEGER PRIMARY KEY, skillName TEXT NOT NU
 
     // inserts skills
     skills.forEach( (oneSkill) => {
-      db.run("INSERT INTO skills (skillid, skillName, skillType, skillDesc) VALUES (?, ?, ?. ?)", [oneSkill.id, oneSkill.name, oneSkill.type, oneSkill.desc], (error) => {
+      db.run("INSERT INTO skills (skillid, skillName, skillType, skillDesc) VALUES (?, ?, ?, ?)", [oneSkill.id, oneSkill.name, oneSkill.type, oneSkill.desc], (error) => {
         if(error) {
           console.log("ERROR: ", error)
         } else {
@@ -240,7 +242,9 @@ db.run("CREATE TABLE projectsCategories (procatid INTEGER PRIMARY KEY, projectid
   }
 })
 
-// *********** MODEL DATA ***********
+// *********** MODEL (DATA) ***********
+
+
 
 
 
@@ -263,7 +267,7 @@ app.get('/', (request, response) => {
       }
 
       // renders the page with the model
-      response.render('home.handlebars', model)
+      response.render('portfolio', model)
     }
     else {
       const model = {
@@ -273,51 +277,58 @@ app.get('/', (request, response) => {
       }
 
       // renders the page with the model
-      response.render('home.handlebars', model)
-    }
-  })
-});
-
-// defines route of a certain project
-app.get('/:id', function(request, response){
-
-  // get the title on the dynamic route
-  const id = request.params.id
-
-  db.all("SELECT * FROM projects WHERE projects.projectid LIKE :id", function (error, selectedProject) {
-    if(error) {
-      const model = {
-        dbError: true,
-        theError: error,
-        projects: []
-      }
-
-      // renders the page with the model
-      response.render('home.handlebars', model)
-    }
-    else {
-      const model = {
-        dbError: false,
-        theError: "",
-        projects: selectedProject
-      }
-
-      // renders the page with the model
-      response.render('project.handlebars', model)
+      response.render('portfolio', model)
     }
   })
 });
 
 // defines route "/aboutme" WITHOUT DATA
-app.get('/aboutme', function(request, response){
+app.get('/aboutme', (request, response) => {
   // rendering the view
-  response.render('aboutme.handlebars', model)
+  response.render('aboutme');
 });
 
 // defines route "/contact" WITHOUT DATA
-app.get('/contact', function(request, response){
+app.get('/contact', (request, response) => {
   // rendering the view
-  response.render('contact.handlebars', model)
+  response.render('contact');
+});
+
+// defines route "/sign-in" WITHOUT DATA
+app.get('/sign-in', (request, response) => {
+  // rendering the view
+  response.render('sign-in');
+});
+
+// defines route of a certain project
+app.get('/:id', (request, response) => {
+
+  // get the id on the dynamic route
+  const id = request.params.id;
+
+  db.all("SELECT * FROM projects", function (error, selectedProject) {
+
+    if(error) {
+      const model = {
+        dbError: true,
+        theError: error,
+        project: [],
+      }
+
+      // renders the page with the model
+      response.render('project', model);
+    }
+    else {
+      const model = {
+        dbError: false,
+        theError: "",
+        project: selectedProject[id],
+      }
+
+      // renders the page with the model
+      response.render('project', model);
+    }
+  })
 });
 
 // defines the final default route 404 NOT FOUND
@@ -327,7 +338,7 @@ app.use(function(req,res){
 
 // runs the app and listens to the port
 app.listen(port, () => {
-    console.log(`Server running and listening on port ${port}...`)
+    console.log(`Server running and listening on port ${port}...`);
 });
 
 // *********** CONTROLLER (ROUTES) ***********

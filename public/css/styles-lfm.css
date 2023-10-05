@@ -1,0 +1,61 @@
+:root {
+  /* Color Code */
+  --primary: #cb4335;
+  --light: #F5F2ED;
+
+  --button-hover: #b33729;
+}
+
+a:hover {
+  color: var(--primary) !important;
+}
+
+* {
+    font-family: "basic-sans", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.custom_bg-color {
+  background-color: var(--light);
+}
+
+.custom_project-card {
+  border-bottom: var(--primary) 0.1rem solid;
+}
+
+.custom_bold-headline {
+  font-weight: 700;
+}
+
+.custom_fw-light {
+  font-weight: 200;
+}
+
+.video-background-holder {
+  position: relative;
+  height: calc(100vh - 72px);
+  min-height: 25rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+.video-background-holder video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: 0;
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.video-background-content {
+  position: relative;
+  z-index: 2;
+}
