@@ -1,13 +1,15 @@
 // loads several packages
 const express = require('express');
 const { engine } = require('express-handlebars');
-const sqlite3 = require('sqlite3')
+const sqlite3 = require('sqlite3');
+const bodyParser = require('body-parser');
+const session = require ('express-session'); // middleware for handling session data
+const connectSqlite3 = require ('connect-sqlite3');
+// const cookieParser = require ('cookie-parser'); // middleware to parse cookies & making them accessible
+
 
 const port = 8080 // defines the port
 const app = express() // creates the Express application
-
-// const session = require ('express-session'); // middleware for handling session data
-// const cookieParser = require ('cookie-parser'); // middleware to parse cookies & making them accessible
 
 // defines handlebars engine
 app.engine('handlebars', engine());
@@ -16,8 +18,73 @@ app.set('view engine', 'handlebars');
 // defines the views directory
 app.set('views', './views');
 
+
+
+
+
+
+// *********** MIDDLEWARES ***********
+
+
+// defines a middleware to log all the incoming requests' URL
+app.use((request, response, next) => {
+  console.log("Req. URL: ", request.url)
+  next()
+})
+
+// defines a middleware to log all the session information
+app.use((request, response, next) => {
+  console.log("SESSION: ", request.session)
+  next()
+})
+
 // define static directory "public" to access css/ and img/
-app.use(express.static('public'))
+app.use(express.static('public'));
+
+
+// *********** MIDDLEWARES ***********
+
+
+
+
+
+
+
+
+
+
+
+// *********** POST Forms ***********
+
+
+app.use(bodyParser.urlencoded({ extended: false}));
+app.use(bodyParser.json());
+
+
+// *********** POST Forms ***********
+
+
+
+
+
+
+
+// *********** SESSIONS ***********
+
+// store sessions in the database
+const SQLiteStore = connectSqlite3(session);
+
+// defines the session
+app.use(session({
+  store: new SQLiteStore({db:'session-db.db'}),
+  "saveUninizialized": false,
+  "resave": false,
+  "secret": "MySECRET@p4ssw0rd"
+}));
+
+// *********** SESSIONS ***********
+
+
 
 
 
@@ -30,7 +97,7 @@ app.use(express.static('public'))
 const db = new sqlite3.Database('portfolio-lfm.db')
 
 // creates table projects at startup
-db.run("CREATE TABLE projects (projectid INTEGER PRIMARY KEY, projectTitle TEXT NOT NULL, projectDesc TEXT NOT NULL, projectDate INTEGER NOT NULL, projectImgURL TEXT NOT NULL)", (error) => {
+db.run("CREATE TABLE projects (projectid INTEGER PRIMARY KEY AUTOINCREMENT, projectTitle TEXT NOT NULL, projectDesc TEXT NOT NULL, projectDate INTEGER NOT NULL, projectImgURL TEXT NOT NULL)", (error) => {
   if (error) {
     console.log("CREATING ERROR: ", error)
   } else {
@@ -93,7 +160,7 @@ db.run("CREATE TABLE projects (projectid INTEGER PRIMARY KEY, projectTitle TEXT 
 })
 
 // creates table skills at startup
-db.run ("CREATE TABLE skills (skillid INTEGER PRIMARY KEY, skillName TEXT NOT NULL, skillType TEXT NOT NULL, skillDesc TEXT NOT NULL)", (error) => {
+db.run ("CREATE TABLE skills (skillid INTEGER PRIMARY KEY AUTOINCREMENT, skillName TEXT NOT NULL, skillType TEXT NOT NULL, skillDesc TEXT NOT NULL)", (error) => {
   if (error) {
     console.log("ERROR: ", error)
   } else {
@@ -135,7 +202,7 @@ db.run ("CREATE TABLE skills (skillid INTEGER PRIMARY KEY, skillName TEXT NOT NU
 })
 
 // creates table projectsSkills at startup
-db.run("CREATE TABLE projectsSkills (proskillid INTEGER PRIMARY KEY, projectid INTEGER, skillid INTEGER, FOREIGN KEY (projectid) REFERENCES projects (projectid), FOREIGN KEY (skillid) REFERENCES skills (skillid))", (error) => {
+db.run("CREATE TABLE projectsSkills (proskillid INTEGER PRIMARY KEY AUTOINCREMENT, projectid INTEGER, skillid INTEGER, FOREIGN KEY (projectid) REFERENCES projects (projectid), FOREIGN KEY (skillid) REFERENCES skills (skillid))", (error) => {
   if(error) {
     console.log("ERROR: ", error)
   } else {
@@ -174,7 +241,7 @@ db.run("CREATE TABLE projectsSkills (proskillid INTEGER PRIMARY KEY, projectid I
 })
 
 // creates table categories at startup
-db.run ("CREATE TABLE categories (categoryid INTEGER PRIMARY KEY, categoryName TEXT NOT NULL)", (error) => {
+db.run ("CREATE TABLE categories (categoryid INTEGER PRIMARY KEY AUTOINCREMENT, categoryName TEXT NOT NULL)", (error) => {
   if(error) {
     console.log("ERROR: ", error)
   } else {
@@ -205,7 +272,7 @@ db.run ("CREATE TABLE categories (categoryid INTEGER PRIMARY KEY, categoryName T
 })
 
 // creates table projectsCategories at startup
-db.run("CREATE TABLE projectsCategories (procatid INTEGER PRIMARY KEY, projectid INTEGER, categoryid INTEGER, FOREIGN KEY (projectid) REFERENCES projects (projectid), FOREIGN KEY (categoryid) REFERENCES categories (categoryid))", (error) => {
+db.run("CREATE TABLE projectsCategories (procatid INTEGER PRIMARY KEY AUTOINCREMENT, projectid INTEGER, categoryid INTEGER, FOREIGN KEY (projectid) REFERENCES projects (projectid), FOREIGN KEY (categoryid) REFERENCES categories (categoryid))", (error) => {
   if(error) {
     console.log("ERROR: ", error)
   } else {
@@ -258,12 +325,15 @@ db.run("CREATE TABLE projectsCategories (procatid INTEGER PRIMARY KEY, projectid
 
 // defines route "/"
 app.get('/', (request, response) => {
-  db.all("SELECT * FROM projects", function (error, theProjects) {
+  db.all("SELECT * FROM projects INNER JOIN projectsCategories ON projects.projectid = projectsCategories.projectid INNER JOIN categories ON projectsCategories.categoryid = categories.categoryid GROUP BY projects.projectid", function (error, theProjects) {
     if(error) {
       const model = {
         dbError: true,
         theError: error,
-        projects: []
+        projects: [],
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
       }
 
       // renders the page with the model
@@ -273,7 +343,10 @@ app.get('/', (request, response) => {
       const model = {
         dbError: false,
         theError: "",
-        projects: theProjects
+        projects: theProjects,
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
       }
 
       // renders the page with the model
@@ -282,37 +355,92 @@ app.get('/', (request, response) => {
   })
 });
 
-// defines route "/aboutme" WITHOUT DATA
+// defines route "/aboutme"
 app.get('/aboutme', (request, response) => {
+  const model = {
+    isAdmin: request.session.isAdmin,
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+  }
+
   // rendering the view
-  response.render('aboutme');
+  response.render('aboutme', model);
 });
 
-// defines route "/contact" WITHOUT DATA
+// defines route "/contact"
 app.get('/contact', (request, response) => {
+  const model = {
+    isAdmin: request.session.isAdmin,
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+  }
+
   // rendering the view
-  response.render('contact');
+  response.render('contact', model);
 });
 
-// defines route "/sign-in" WITHOUT DATA
-app.get('/sign-in', (request, response) => {
+// defines route "/login"
+app.get('/login', (request, response) => {
+  const model = {
+    isAdmin: request.session.isAdmin,
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+  }
   // rendering the view
-  response.render('sign-in');
+  response.render('login', model);
 });
 
-// defines route of a certain project
+// AUTHENTICATION of the user by username and password
+app.post('/login', (request, response) => {
+  const un = request.body.un
+  const pw = request.body.pw
+
+  console.log("FIELDS: " + un + "," + pw)
+
+  if(un=="leafmllr" && pw=="5678") {
+    console.log("Welcome Lea!")
+
+    request.session.isAdmin = true;
+    request.session.isLoggedIn = true;
+    request.session.name = "Lea";
+    response.redirect('/');
+  } else {
+    console.log("Nice try!")
+
+    request.session.isAdmin = false;
+    request.session.isLoggedIn = false;
+    request.session.name = "";
+    response.redirect('/login');
+  }
+});
+
+// defines route "/logout"
+app.get('/logout', (request, response) => {
+  request.session.destroy( (error) => {
+    console.log("Error while destroying the session: " + error)
+  });
+  console.log("Log out, bye, bye!");
+
+  // rendering the view
+  response.redirect('/');
+});
+
+// defines route of a single project
 app.get('/:id', (request, response) => {
 
   // get the id on the dynamic route
-  const id = request.params.id;
+  const id = request.params.id
 
-  db.all("SELECT * FROM projects", function (error, selectedProject) {
+  db.all("SELECT * FROM projects WHERE projectid=?", [id], function(error, selectedProject) {
 
     if(error) {
       const model = {
         dbError: true,
         theError: error,
-        project: [],
+        project: {},
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
       }
 
       // renders the page with the model
@@ -322,13 +450,49 @@ app.get('/:id', (request, response) => {
       const model = {
         dbError: false,
         theError: "",
-        project: selectedProject[id],
+        project: selectedProject,
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
       }
 
+      console.log("THE ID: "+ id);
+      console.log("Project: "+ selectedProject);
       // renders the page with the model
       response.render('project', model);
     }
   })
+});
+
+// DELETES a single project
+app.get('/:id/delete', (request, response) => {
+  const id = request.params.id
+
+  if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
+    db.run('DELETE FROM projects WHERE projectid=?', [id], (error, theProjects) => {
+      if (error) {
+        const model = {
+          dbError: true,
+          theError: error,
+          isAdmin: request.session.isAdmin,
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.name
+        }
+        response.render('portfolio', model)
+      } else {
+        const model = {
+          dbError: false,
+          theError: "",
+          isAdmin: request.session.isAdmin,
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.name
+        }
+        response.render('portfolio', model)
+      } 
+    })
+  } else {
+    response.redirect('/login')
+  }
 });
 
 // defines the final default route 404 NOT FOUND

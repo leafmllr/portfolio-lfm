@@ -4,9 +4,19 @@
 
       <span class="mb-3 mb-md-0 text-body-secondary">© 2023 Lea Müller</span>
 
-      <a href="/sign-in" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
-        Sign in
-      </a>
+      {{#if isLoggedIn}}
+
+        <a href="/logout" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
+          Logout
+        </a>
+
+      {{else}}
+
+        <a href="/login" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
+          Login
+        </a>
+
+      {{/if}}
 
     </div>
 

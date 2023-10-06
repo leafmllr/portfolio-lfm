@@ -4,7 +4,16 @@
 
         <div class="container-fluid">
 
-            <span class="navbar-text">Portfolio</span>
+            <div class="d-flex">
+                <span class="navbar-text">Portfolio</span>
+
+                {{#if isLoggedIn}}
+
+                    <div class="vr mx-3"></div>
+                    <p class="navbar-text m-0 italic">Welcome back, {{name}}!</p>
+
+                {{/if}}
+            </div>
 
             <!-- Burger Menu -->
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
