@@ -5,7 +5,7 @@ const sqlite3 = require('sqlite3');
 const bodyParser = require('body-parser');
 const session = require ('express-session'); // middleware for handling session data
 const connectSqlite3 = require ('connect-sqlite3');
-// const cookieParser = require ('cookie-parser'); // middleware to parse cookies & making them accessible
+const cookieParser = require ('cookie-parser'); // middleware to parse cookies & making them accessible
 
 
 const port = 8080 // defines the port
@@ -77,9 +77,9 @@ const SQLiteStore = connectSqlite3(session);
 // defines the session
 app.use(session({
   store: new SQLiteStore({db:'session-db.db'}),
-  "saveUninizialized": false,
-  "resave": false,
-  "secret": "MySECRET@p4ssw0rd"
+  saveUninitialized: false,
+  resave: false,
+  secret: "MySECRET@p4ssw0rd",
 }));
 
 // *********** SESSIONS ***********
@@ -325,7 +325,7 @@ db.run("CREATE TABLE projectsCategories (procatid INTEGER PRIMARY KEY AUTOINCREM
 
 // defines route "/"
 app.get('/', (request, response) => {
-  db.all("SELECT * FROM projects INNER JOIN projectsCategories ON projects.projectid = projectsCategories.projectid INNER JOIN categories ON projectsCategories.categoryid = categories.categoryid GROUP BY projects.projectid", function (error, theProjects) {
+  db.all("SELECT * FROM projects", function (error, theProjects) {
     if(error) {
       const model = {
         dbError: true,
@@ -337,7 +337,7 @@ app.get('/', (request, response) => {
       }
 
       // renders the page with the model
-      response.render('portfolio', model)
+      response.render('portfolio.handlebars', model)
     }
     else {
       const model = {
@@ -350,7 +350,7 @@ app.get('/', (request, response) => {
       }
 
       // renders the page with the model
-      response.render('portfolio', model)
+      response.render('portfolio.handlebars', model)
     }
   })
 });
@@ -364,7 +364,7 @@ app.get('/aboutme', (request, response) => {
   }
 
   // rendering the view
-  response.render('aboutme', model);
+  response.render('aboutme.handlebars', model);
 });
 
 // defines route "/contact"
@@ -374,10 +374,11 @@ app.get('/contact', (request, response) => {
     isLoggedIn: request.session.isLoggedIn,
     name: request.session.name,
   }
-
   // rendering the view
-  response.render('contact', model);
+  response.render('contact.handlebars', model);
 });
+
+
 
 // defines route "/login"
 app.get('/login', (request, response) => {
@@ -387,15 +388,13 @@ app.get('/login', (request, response) => {
     name: request.session.name,
   }
   // rendering the view
-  response.render('login', model);
+  response.render('login.handlebars', model);
 });
 
 // AUTHENTICATION of the user by username and password
 app.post('/login', (request, response) => {
   const un = request.body.un
   const pw = request.body.pw
-
-  console.log("FIELDS: " + un + "," + pw)
 
   if(un=="leafmllr" && pw=="5678") {
     console.log("Welcome Lea!")
@@ -425,6 +424,9 @@ app.get('/logout', (request, response) => {
   response.redirect('/');
 });
 
+
+
+
 // defines route of a single project
 app.get('/:id', (request, response) => {
 
@@ -444,7 +446,7 @@ app.get('/:id', (request, response) => {
       }
 
       // renders the page with the model
-      response.render('project', model);
+      response.render('project.handlebars', model);
     }
     else {
       const model = {
@@ -456,10 +458,8 @@ app.get('/:id', (request, response) => {
         name: request.session.name,
       }
 
-      console.log("THE ID: "+ id);
-      console.log("Project: "+ selectedProject);
       // renders the page with the model
-      response.render('project', model);
+      response.render('project.handlebars', model);
     }
   })
 });
@@ -476,18 +476,18 @@ app.get('/:id/delete', (request, response) => {
           theError: error,
           isAdmin: request.session.isAdmin,
           isLoggedIn: request.session.isLoggedIn,
-          name: request.session.name
+          name: request.session.name,
         }
-        response.render('portfolio', model)
+        response.render('portfolio.handlebars', model)
       } else {
         const model = {
           dbError: false,
           theError: "",
           isAdmin: request.session.isAdmin,
           isLoggedIn: request.session.isLoggedIn,
-          name: request.session.name
+          name: request.session.name,
         }
-        response.render('portfolio', model)
+        response.render('portfolio.handlebars', model)
       } 
     })
   } else {
@@ -495,9 +495,99 @@ app.get('/:id/delete', (request, response) => {
   }
 });
 
+// sends the form for a NEW project
+app.get('/project/new', (request, response) => {
+  if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
+    const model = {
+    isAdmin: request.session.isAdmin,
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+    }
+    console.log("Create a new project!");
+
+    response.render('newproject.handlebars', model);
+  } else {
+    response.redirect('/login')
+  }
+});
+
+// CREATES a new project
+app.post ('/project/new', (request, response) => {
+  const newProject = [
+    request.body.prot, request.body.prodesc, request.body.prodate, request.body.proimgURL,
+  ]
+  if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
+    db.run("INSERT INTO projects (projectTitle, projectDesc, projectDate, projectImgURL) VALUES (?, ?, ?, ?)", newProject, (error) => {
+      if (error) {
+        console.log("ERROR: ", error)
+      } else {
+        console.log("Line added into the project table!")
+      }
+      response.redirect('/')
+    })
+  } else {
+    response.redirect('/login')
+  }
+})
+
+// sends the form for UPDATE a project
+app.get('/:id/update', (request, response) => {
+  const id = request.params.id
+
+  db.get ("SELECT * FROM projects WHERE projectid=?", [id], (error, theProject) => {
+    if (error) {
+      console.log("ERROR: ", error)
+      const model = {
+        dbError: true,
+        theError: true,
+        project: {},
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+        isAdmin: request.session.isAdmin,
+      }
+      // renders the page with the model
+      response.render("updateproject.handlebars", model)
+    } else {
+      const model = {
+        dbError: false,
+        theError: "",
+        project: theProject,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+        isAdmin: request.session.isAdmin,
+      }
+      // renders the page with the model
+      response.render("updateproject.handlebars", model)
+    }
+  })
+
+});
+
+// modifies an existing project
+app.post('/:id/update', (request, response) => {
+  const id = request.params.id
+  const updatedProject = [
+    request.body.newprot, request.body.newprodesc, request.body.newprodate, request.body.newproimgURL, id
+  ]
+  if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
+    db.run("UPDATE projects SET projectTitle=?, projectDesc=?, projectDate=?, projectImgURL=? WHERE projectid=?", updatedProject, (error) => {
+      if (error) {
+        console.log("ERROR: ", error)
+      } else {
+        console.log("Succsessfully updated Project!")
+      }
+      response.redirect('/')
+    })
+  } else {
+    response.redirect ('/login')
+  }
+})
+
+
+
 // defines the final default route 404 NOT FOUND
-app.use(function(req,res){
-  res.status(404).render('404.handlebars');
+app.use(function(request,response){
+  response.status(404).render('404.handlebars');
 });
 
 // runs the app and listens to the port

@@ -1,0 +1,50 @@
+<div id="main">
+
+    {{#if isLoggedIn}}
+
+
+        {{#if isAdmin}}
+            <div class="container col-md-6 col-lg-4 my-5 px-4">
+
+                <form action="/project/new" method="post">
+
+                    <h1 class="h3 my-4 fw-normal text-uppercase custom_bold-headline">New Project</h1>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="prot" id="prot" placeholder="Projecttitle" required="required">
+                        <label for="prot">Project title</label>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label for="prodesc" class="form-label">Project describtion</label>
+                        <textarea class="form-control" name="prodesc" id="prodesc" rows="8" placeholder="About this project..." required="required"></textarea>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="prodate" id="prodate" placeholder="YYYY-MM" required="required">
+                        <label for="prodate">Project Date (YYYY-MM)</label>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="proimgURL" id="proimgURL" placeholder="public/img/..." required="required">
+                        <label for="proimgURL">Project Image URL</label>
+                    </div>
+
+                    <button class="btn btn-primary w-100 py-2 mb-4" type="submit">Add project</button>
+
+                </form>
+
+            </div>
+        {{else}}
+            <p>Sorry, you must be an Admin to add a new project!</p>
+        {{/if}}
+
+
+    {{else}}
+        <p>
+            Sorry, you must be logged in to add a new project.<br>
+            Please go to the <a href="/login">Login</a>page.
+        </p>
+    {{/if}}
+
+</div>
