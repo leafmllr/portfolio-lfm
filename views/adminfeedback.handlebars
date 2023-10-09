@@ -1,0 +1,39 @@
+<div id="main">
+    <div class="container col-md-6 col-lg-4 my-5 px-4">
+
+        {{#if isLoggedIn}}
+            {{#if isAdmin}}
+
+
+                {{#if projectDeletion}}
+                    <p>Deletion successfull! Get back to your <a href="/">portfolio</a> page.</p>
+                
+                    {{#if projectUpdate}}
+                        <p>Update successfull! Get back to your <a href="/">portfolio</a> page.</p>
+
+                    {{else}}  
+                        <p>You haven't change anything. Get back to your <a href="/">portfolio</a> page.</p>
+                    {{/if}}
+
+                {{else}}
+
+                    <p>You haven't change anything. Get back to your <a href="/">portfolio</a> page.</p>
+                
+                {{/if}}
+                
+
+            {{else}}
+                <p>Sorry, you must be an Admin for more information</p>
+            {{/if}}
+
+
+        {{else}}
+            <p>
+                Sorry, you must be logged in for more information<br>
+                Please go to the <a href="/login">Login</a>page.
+            </p>
+        {{/if}}
+
+
+    </div>
+</div>

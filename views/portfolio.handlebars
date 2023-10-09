@@ -3,18 +3,13 @@
 
 
     <!-- HERO -->
-    <div class="video-background-holder custom_bg-color">
-
-        <!--
-        <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop">
-                <source src="/img/Titelanimation.mp4" type="video/mp4">
-        </video>
-        -->
+    <div class="custom_header custom_bg-color">
 
         <div class="video-background-content container h-100">
             <div class="d-flex h-100 text-center align-items-center">
                 <div class="w-100">
-                    <h1 class="display-4 text-uppercase custom_bold-headline">Portfolio</h1>
+                    <img height="180px" src="/img/Titelanimation_klein.gif">
+                    <h1 class="display-4 text-uppercase m-0 custom_bold-headline">Portfolio</h1>
                     <p class="lead mb-0">by Lea Müller</p>
                 </div>
             </div>
@@ -57,12 +52,11 @@
                     <div class="col">
                         <a class="card text-decoration-none text-center border-0 rounded-0" href="/{{projectid}}">
 
-                            <!-- Insert {{projectImgURL}} later -->
-                            <img src="/img/vorlage_projects.jpg" class="card-img-top rounded-0 custom_project-card" alt="{{projectImgURL}}">
+                            <img src="/img/{{projectImgURL}}" class="card-img-top rounded-0 custom_project-card" alt="{{projectImgURL}}">
 
                             <div class="card-body">
                                 <h5 class="card-title text-uppercase">{{projectTitle}}</h5>
-                                <p class="card-text text-black-50">Category</p>
+                                <p class="card-text text-black-50">{{categoryName}}</p>
                             </div>
                         </a>
                     </div>

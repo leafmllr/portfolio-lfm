@@ -5,14 +5,18 @@
             <div class="row">
 
                 <div class="col-md-5">
-                    <img src="/img/vorlage_projects.jpg" class="card-img-top rounded-0 custom_project-card" alt="{{projectImgURL}}">
+                    <img src="/img/{{projectImgURL}}" class="card-img-top rounded-0 custom_project-card" alt="{{projectImgURL}}">
                 </div>
 
                 <div class="col-md-7">
-                    <p class="card-text text-black-50">Category</p>
-                    <h5 class="card-title text-uppercase">{{projectTitle}}</h5>
+
+                    <div class="mb-5">
+                        <p class="card-text my-2 text-black-50">{{categoryName}}</p>
+                        <h5 class="card-title text-uppercase custom_bold-headline custom_underlined-text">{{projectTitle}}</h5>
+                    </div>
+
                     <p class="my-2">{{projectDesc}}</p>
-                    <p>{{projectDate}}</p>
+                    <p class="text-muted custom_fs-small">{{projectDate}}</p>
 
                     {{#if ../isAdmin}}
                         <div class="d-flex">
