@@ -1,16 +1,16 @@
-<header id="menu" class="bg-white">
+<header id="menu" class="bg-white sticky-top">
 
     <nav class="navbar navbar-expand-lg">
 
         <div class="container-fluid">
 
             <div class="d-flex">
-                <span class="navbar-text">Portfolio</span>
+                <a class="navbar-text nav-link" href="/">Portfolio</a>
 
                 {{#if isLoggedIn}}
 
-                    <div class="vr mx-3"></div>
-                    <p class="navbar-text m-0 italic">Welcome back, {{name}}!</p>
+                    <div class="vr mx-3 text-black-50"></div>
+                    <p class="navbar-text m-0 text-black-50">Welcome back, {{name}}!</p>
 
                 {{/if}}
             </div>

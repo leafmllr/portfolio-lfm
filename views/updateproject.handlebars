@@ -20,6 +20,20 @@
                         <textarea class="form-control" name="newprodesc" id="newprodesc" rows="8" required="required">{{project.projectDesc}}</textarea>
                     </div>
 
+                    <div class="col-12 mb-4">
+                        <label for="newprocategory" class="form-label">Project category</label>
+                        <select name="newprocategory" id="newprocategory" required="required">
+                            <option value="1" {{#if (theTypeA project.categoryfk)}} selected="selected" {{/if}}>3D Production</option>
+                            <option value="2" {{#if (theTypeB project.categoryfk)}} selected="selected" {{/if}}>Animation</option>
+                            <option value="3" {{#if (theTypeC project.categoryfk)}} selected="selected" {{/if}}>UX-/UI Design</option>
+                            <option value="4" {{#if (theTypeD project.categoryfk)}} selected="selected" {{/if}}>Branding</option>
+                            <option value="5" {{#if (theTypeE project.categoryfk)}} selected="selected" {{/if}}>Editorial Design</option>
+                            <option value="6" {{#if (theTypeF project.categoryfk)}} selected="selected" {{/if}}>Film</option>
+                            <option value="7" {{#if (theTypeG project.categoryfk)}} selected="selected" {{/if}}>Photography</option>
+                            <option value="8" {{#if (theTypeH project.categoryfk)}} selected="selected" {{/if}}>Graphic Design</option>
+                        </select>
+                    </div>
+
                     <div class="form-floating mb-4">
                         <input class="form-control" name="newprodate" id="newprodate" value="{{project.projectDate}}" required="required">
                         <label for="newprodate">Project Date (YYYY-MM)</label>

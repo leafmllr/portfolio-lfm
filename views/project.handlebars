@@ -4,24 +4,56 @@
         {{#each project}}
             <div class="row">
 
-                <div class="col-md-5">
+                <div class="col-lg-7">
                     <img src="/img/{{projectImgURL}}" class="card-img-top rounded-0 custom_project-card" alt="{{projectImgURL}}">
                 </div>
 
-                <div class="col-md-7">
+                <div class="col-lg-5">
 
                     <div class="mb-5">
                         <p class="card-text my-2 text-black-50">{{categoryName}}</p>
-                        <h5 class="card-title text-uppercase custom_bold-headline custom_underlined-text">{{projectTitle}}</h5>
+                        <h3 class="h5 card-title text-uppercase custom_bold-headline custom_underlined-text">{{projectTitle}}</h3>
                     </div>
 
                     <p class="my-2">{{projectDesc}}</p>
                     <p class="text-muted custom_fs-small">{{projectDate}}</p>
 
+
+                    <!-- Skills List -->
+
+                    <div class="my-4">
+
+                        <h4 class="h6 text-uppercase custom_bold-headline">Skills</h4>
+                        <div id="accordion">
+                            {{#each ../skills}}
+                                <div class="border-0 mb-2 card">
+
+                                    <div class="card-header bg-white px-0" id="{{skillid}}">
+                                        <h5 class="mb-0">
+                                            <a class="btn p-0" data-toggle="collapse" data-target="#collapse-{{skillid}}" aria-expanded="true" aria-controls="collapse-{{skillid}}">
+                                                {{skillName}} <span class="text-decoration-none text-black-50">| {{skillType}}</span>
+                                            </a>
+                                        </h5>
+                                    </div>
+
+                                    <div id="collapse-{{skillid}}" class="collapse" aria-labelledby="collapse-{{skillid}}" data-parent="#accordion">
+                                        <div class="card-body px-0 py-2 custom_italic">
+                                            {{skillDesc}}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            {{/each}}
+                        </div>
+
+                    </div>
+
+
+
                     {{#if ../isAdmin}}
                         <div class="d-flex">
-                            <a href="/{{projectid}}/update" class="btn btn-outline-success btn-sm me-2" role="button" aria-pressed="true">Update</a>
-                            <a href="/{{projectid}}/delete" class="btn btn-outline-danger btn-sm me-2" role="button" aria-pressed="true">Delete</a>
+                            <a href="/{{projectid}}/update" class="btn btn-outline-success btn-sm me-2" role="button" aria-pressed="true">Update project</a>
+                            <a href="/{{projectid}}/delete" class="btn btn-outline-danger btn-sm me-2" role="button" aria-pressed="true">Delete project</a>
                         </div>
                     {{/if}}
                 </div>

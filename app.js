@@ -433,13 +433,19 @@ app.get('/:id', (request, response) => {
   // get the id on the dynamic route
   const id = request.params.id
 
-  db.all("SELECT * FROM projects JOIN categories ON projects.categoryfk = categories.categoryid WHERE projectid=? ", [id], function(error, selectedProject) {
+  // Initialize variables to store project and categories
+  let projectData = null;
+  let skillsData = null;
+
+  // Query to get the project by ID
+  db.all("SELECT * FROM projects JOIN categories ON projects.categoryfk = categories.categoryid WHERE projects.projectid=?", [id], function(error, selectedProject) {
 
     if(error) {
       const model = {
         dbError: true,
         theError: error,
         project: {},
+        skills: {},
         isAdmin: request.session.isAdmin,
         isLoggedIn: request.session.isLoggedIn,
         name: request.session.name,
@@ -449,17 +455,41 @@ app.get('/:id', (request, response) => {
       response.render('project.handlebars', model);
     }
     else {
-      const model = {
-        dbError: false,
-        theError: "",
-        project: selectedProject,
-        isAdmin: request.session.isAdmin,
-        isLoggedIn: request.session.isLoggedIn,
-        name: request.session.name,
-      }
+      // Store the selected project data
+      projectData = selectedProject;
 
-      // renders the page with the model
-      response.render('project.handlebars', model);
+      db.all("SELECT * FROM projectsSkills INNER JOIN skills ON projectsSkills.skillid = skills.skillid INNER JOIN projects ON projectsSkills.projectid = projects.projectid INNER JOIN categories ON projects.categoryfk = categories.categoryid WHERE projects.projectid=?", [id], function(error, projectSkills) {
+        if (error) {
+          const model = {
+            dbError: true,
+            theError: error,
+            project: projectData,
+            skills: {},
+            isAdmin: request.session.isAdmin,
+            isLoggedIn: request.session.isLoggedIn,
+            name: request.session.name,
+          }
+
+          // renders the page with the model
+          response.render('project.handlebars', model);
+        } else {
+          // Store the selected categories data
+          skillsData = projectSkills;
+
+          const model = {
+            dbError: false,
+            theError: "",
+            project: projectData,
+            skills: projectSkills,
+            isAdmin: request.session.isAdmin,
+            isLoggedIn: request.session.isLoggedIn,
+            name: request.session.name,
+          }
+          
+          // renders the page with the model
+          response.render('project.handlebars', model);
+        }
+      })
     }
   })
 });
@@ -516,10 +546,10 @@ app.get('/project/new', (request, response) => {
 // CREATES a new project
 app.post ('/project/new', (request, response) => {
   const newProject = [
-    request.body.prot, request.body.prodesc, request.body.prodate, request.body.proimgURL,
+    request.body.prot, request.body.prodesc, request.body.prodate, request.body.proimgURL, request.body.procategory
   ]
   if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
-    db.run("INSERT INTO projects (projectTitle, projectDesc, projectDate, projectImgURL) VALUES (?, ?, ?, ?)", newProject, (error) => {
+    db.run("INSERT INTO projects (projectTitle, projectDesc, projectDate, projectImgURL, categoryfk) VALUES (?, ?, ?, ?, ?)", newProject, (error) => {
       if (error) {
         console.log("ERROR: ", error)
       } else {
@@ -557,6 +587,16 @@ app.get('/:id/update', (request, response) => {
         isLoggedIn: request.session.isLoggedIn,
         name: request.session.name,
         isAdmin: request.session.isAdmin,
+        helpers: {
+          theTypeA(value) { return value == "1"; },
+          theTypeB(value) { return value == "2"; },
+          theTypeC(value) { return value == "3"; },
+          theTypeD(value) { return value == "4"; },
+          theTypeE(value) { return value == "5"; },
+          theTypeF(value) { return value == "6"; },
+          theTypeG(value) { return value == "7"; },
+          theTypeH(value) { return value == "8"; },
+        }
       }
       // renders the page with the model
       response.render("updateproject.handlebars", model)
@@ -569,10 +609,10 @@ app.get('/:id/update', (request, response) => {
 app.post('/:id/update', (request, response) => {
   const id = request.params.id
   const updatedProject = [
-    request.body.newprot, request.body.newprodesc, request.body.newprodate, request.body.newproimgURL, id
+    request.body.newprot, request.body.newprodesc, request.body.newprodate, request.body.newproimgURL, request.body.newprocategory, id
   ]
   if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
-    db.run("UPDATE projects SET projectTitle=?, projectDesc=?, projectDate=?, projectImgURL=? WHERE projectid=?", updatedProject, (error) => {
+    db.run("UPDATE projects SET projectTitle=?, projectDesc=?, projectDate=?, projectImgURL=?, categoryfk=? WHERE projectid=?", updatedProject, (error) => {
       if (error) {
         console.log("ERROR: ", error)
       } else {
