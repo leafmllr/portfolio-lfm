@@ -17,6 +17,7 @@ a:hover {
 .custom_button {
   color: #FFF;
   background-color: var(--primary);
+  border: none;
 }
 
 .custom_button:hover {

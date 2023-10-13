@@ -249,6 +249,65 @@ db.run("CREATE TABLE projectsSkills (proskillid INTEGER PRIMARY KEY AUTOINCREMEN
   }
 })
 
+// creates table cv at startup
+db.run("CREATE TABLE cv (cvid INTEGER PRIMARY KEY AUTOINCREMENT, cvFieldOfWork TEXT NOT NULL, cvType TEXT NOT NULL, cvDesc TEXT NOT NULL, cvDate TEXT NOT NULL, cvPlace TEXT NOT NULL)", (error) => {
+  if (error) {
+    console.log("CREATING ERROR: ", error)
+  } else {
+    const cv = [
+      {"id":"1",
+        "field":"Digital and Print Media Designer Trainee",
+        "type":"Education",
+        "desc":"Conception and design of print media and websites, branding and packaging, data preparation in pre-press as well as full support for recurring projects, customer and supplier liaison.",
+        "date":"2017-08 till 2020-07",
+        "place":"Kehrer Werbeagentur"},
+      {"id":"2",
+        "field":"Bachelor's degree Multimedia Production",
+        "type":"Education",
+        "desc":"Design, computer science, media theory, media technology, journalism, media studies, media business and media conception.",
+        "date":"2021-09 till 2025-03",
+        "place":"Fachhochschule Kiel"},
+      {"id":"3",
+        "field":"Semester abroad at Jönköping University (Sweden)",
+        "type":"Education",
+        "desc":"",
+        "date":"2023-08 till 2023-12",
+        "place":"Jönköping University"},
+      {"id":"4",
+        "field":"Voluntary services in the field of culture and education",
+        "type":"Work Experience",
+        "desc":"Public relations and print media design assistance.",
+        "date":"2016-09 till 2017-07",
+        "place":"Volkshochschule Oldenburg"},
+      {"id":"5",
+        "field":"Final Artwork Designer",
+        "type":"Work Experience",
+        "desc":"Design and adaptation of packaging up to final artwork according to style guide design guidelines and independent supervision of complete ranges (master design set-ups and design guidelines).",
+        "date":"2020-09 till 2021-07",
+        "place":"Adwork Werbeagentur"},
+      {"id":"6",
+        "field":"Freelancer",
+        "type":"Work Experience",
+        "desc":"Student assistant in editorial design and strategic communications.",
+        "date":"2022-02 till now",
+        "place":"Fachhochschule Kiel"},
+    ]
+
+    // insert projects
+    cv.forEach ( (oneMilestone) => {
+      db.run("INSERT INTO cv (cvid, cvFieldOfWork, cvType, cvDesc, cvDate, cvPlace) VALUES (?, ?, ?, ?, ?, ?)", [oneMilestone.id, oneMilestone.field, oneMilestone.type, oneMilestone.desc, oneMilestone.date, oneMilestone.place], (error) => {
+        if (error) {
+          console.log("INSERT ERROR: ", error)
+        } else {
+          console.log("Line added into the cv table!")
+        }
+      })
+    })
+
+    console.log("Table cv created successfully!")
+  }
+})
+
 // creates table categories at startup
 db.run ("CREATE TABLE categories (categoryid INTEGER PRIMARY KEY AUTOINCREMENT, categoryName TEXT NOT NULL)", (error) => {
   if(error) {
@@ -319,63 +378,6 @@ db.run ("CREATE TABLE users (userID INTEGER PRIMARY KEY AUTOINCREMENT, userName 
 
 // *********** CONTROLLER (ROUTES) ***********
 
-// defines route "/"
-app.get('/', (request, response) => {
-  db.all("SELECT * FROM projects JOIN categories ON projects.categoryfk = categories.categoryid", function (error, theProjects) {
-    if(error) {
-      const model = {
-        dbError: true,
-        theError: error,
-        projects: [],
-        isAdmin: request.session.isAdmin,
-        isLoggedIn: request.session.isLoggedIn,
-        name: request.session.name,
-      }
-
-      // renders the page with the model
-      response.render('portfolio.handlebars', model)
-    }
-    else {
-      const model = {
-        dbError: false,
-        theError: "",
-        projects: theProjects,
-        isAdmin: request.session.isAdmin,
-        isLoggedIn: request.session.isLoggedIn,
-        name: request.session.name,
-      }
-
-      // renders the page with the model
-      response.render('portfolio.handlebars', model)
-    }
-  })
-});
-
-// defines route "/aboutme"
-app.get('/aboutme', (request, response) => {
-  const model = {
-    isAdmin: request.session.isAdmin,
-    isLoggedIn: request.session.isLoggedIn,
-    name: request.session.name,
-  }
-
-  // rendering the view
-  response.render('aboutme.handlebars', model);
-});
-
-// defines route "/contact"
-app.get('/contact', (request, response) => {
-  const model = {
-    isAdmin: request.session.isAdmin,
-    isLoggedIn: request.session.isLoggedIn,
-    name: request.session.name,
-  }
-  // rendering the view
-  response.render('contact.handlebars', model);
-});
-
-
-
 
 // defines route "/login"
 app.get('/login', (request, response) => {
@@ -422,6 +424,221 @@ app.get('/logout', (request, response) => {
   // rendering the view
   response.redirect('/');
 });
+
+
+
+
+
+// defines route "/"
+app.get('/', (request, response) => {
+  db.all("SELECT * FROM projects JOIN categories ON projects.categoryfk = categories.categoryid", function (error, theProjects) {
+    if(error) {
+      const model = {
+        dbError: true,
+        theError: error,
+        projects: [],
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+      }
+
+      // renders the page with the model
+      response.render('portfolio.handlebars', model)
+    }
+    else {
+      const model = {
+        dbError: false,
+        theError: "",
+        projects: theProjects,
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+      }
+
+      // renders the page with the model
+      response.render('portfolio.handlebars', model)
+    }
+  })
+});
+
+// defines route "/contact"
+app.get('/contact', (request, response) => {
+  const model = {
+    isAdmin: request.session.isAdmin,
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+  }
+  // rendering the view
+  response.render('contact.handlebars', model);
+});
+
+
+
+
+
+
+// defines route "/aboutme"
+app.get('/aboutme', (request, response) => {
+  db.all("SELECT * FROM cv ORDER BY cvDate DESC", function (error, theCV) {
+    if(error) {
+      const model = {
+        dbError: true,
+        theError: error,
+        milestone: [],
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+      }
+      console.log("Didn't found anything for CV. :(")
+
+      // renders the page with the model
+      response.render('aboutme.handlebars', model)
+    }
+    else {
+      const model = {
+        dbError: false,
+        theError: "",
+        milestone: theCV,
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+        helpers: {
+          theTypeWE(value) { return value == "Work Experience"; },
+          theTypeE(value) { return value == "Education"; },
+        }
+      }
+      console.log("The CV should be shown.")
+
+      // renders the page with the model
+      response.render('aboutme.handlebars', model)
+    }
+  })
+});
+
+// sends the form for a NEW CV milestone
+app.get('/aboutme/add', (request, response) => {
+  if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
+    const model = {
+    isAdmin: request.session.isAdmin,
+    isLoggedIn: request.session.isLoggedIn,
+    name: request.session.name,
+    }
+    console.log("Create a new milestone!");
+
+    response.render('newmilestone.handlebars', model);
+  } else {
+    response.redirect('/login')
+  }
+});
+
+// CREATES a new CV milestone
+app.post ('/aboutme/add', (request, response) => {
+  const newMilestone = [
+    request.body.mileField, request.body.mileType, request.body.mileDesc, request.body.cvDate, request.body.milePlace
+  ]
+  if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
+    db.run("INSERT INTO cv (cvFieldOfWork, cvType, cvDesc, cvDate, cvPlace) VALUES (?, ?, ?, ?, ?)", newMilestone, (error) => {
+      if (error) {
+        console.log("ERROR: ", error)
+      } else {
+        console.log("Line added into the cv table!")
+      }
+      response.redirect('/')
+    })
+  } else {
+    response.redirect('/login')
+  }
+})
+
+// DELETES a single CV milestone
+app.get('/aboutme/delete/:id', (request, response) => {
+  const id = request.params.id
+
+  if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
+    db.run('DELETE FROM cv WHERE cvid=?', [id], (error, theCV) => {
+      if (error) {
+        const model = {
+          dbError: true,
+          theError: error,
+          isAdmin: request.session.isAdmin,
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.name,
+          projectDeletion: false,
+        }
+        response.redirect('/adminfeedback', model)
+      } else {
+        const model = {
+          dbError: false,
+          theError: "",
+          isAdmin: request.session.isAdmin,
+          isLoggedIn: request.session.isLoggedIn,
+          name: request.session.name,
+          projectDeletion: true,
+        }
+        response.render('adminfeedback.handlebars', model)
+      } 
+    })
+  } else {
+    response.redirect('/login')
+  }
+});
+
+// sends the form for UPDATE a CV milestone
+app.get('/aboutme/update/:id', (request, response) => {
+  const id = request.params.id
+
+  db.get ("SELECT * FROM cv WHERE cvid=?", [id], (error, theMilestone) => {
+    if (error) {
+      console.log("ERROR: ", error)
+      const model = {
+        dbError: true,
+        theError: true,
+        milestone: {},
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+        isAdmin: request.session.isAdmin,
+      }
+      // renders the page with the model
+      response.render("updatemilestone.handlebars", model)
+    } else {
+      const model = {
+        dbError: false,
+        theError: "",
+        milestone: theMilestone,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+        isAdmin: request.session.isAdmin,
+        helpers: {
+          theTypeWE(value) { return value == "Work Experience"; },
+          theTypeE(value) { return value == "Education"; },
+        }
+      }
+      // renders the page with the model
+      response.render("updatemilestone.handlebars", model)
+    }
+  })
+
+});
+
+// modifies an existing CV milestone
+app.post('/aboutme/update/:id', (request, response) => {
+  const id = request.params.id
+  const updatedMilestone = [
+    request.body.newMileField, request.body.newMileType, request.body.newMileDesc, request.body.newCvDate, request.body.newMilePlace, id
+  ]
+  if (request.session.isLoggedIn==true && request.session.isAdmin==true) {
+    db.run("UPDATE projects SET cvFieldOfWork=?, cvType=?, cvDesc=?, cvDate=?, cvPlace=? WHERE cvid=?", updatedMilestone, (error) => {
+      if (error) {
+        console.log("ERROR: ", error)
+      } else {
+        console.log("Succsessfully updated Milestone!")
+      }
+      response.redirect('/')
+    })
+  } else {
+    response.redirect ('/login')
+  }
+})
 
 
 
@@ -507,7 +724,7 @@ app.get('/:id/delete', (request, response) => {
           isAdmin: request.session.isAdmin,
           isLoggedIn: request.session.isLoggedIn,
           name: request.session.name,
-          projectDeletion: true,
+          projectDeletion: false,
         }
         response.redirect('/adminfeedback', model)
       } else {
@@ -517,9 +734,9 @@ app.get('/:id/delete', (request, response) => {
           isAdmin: request.session.isAdmin,
           isLoggedIn: request.session.isLoggedIn,
           name: request.session.name,
-          projectDeletion: false,
+          projectDeletion: true,
         }
-        response.render('portfolio.handlebars', model)
+        response.render('adminfeedback.handlebars', model)
       } 
     })
   } else {
@@ -637,6 +854,9 @@ app.get('/adminfeedback', (request, response) => {
   // rendering the view
   response.render('adminfeedback.handlebars', model);
 });
+
+
+
 
 
 

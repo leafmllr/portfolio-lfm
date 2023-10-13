@@ -1,0 +1,58 @@
+<div id="main">
+
+    {{#if isLoggedIn}}
+
+
+        {{#if isAdmin}}
+            <div class="container col-md-6 col-lg-4 my-5 px-4">
+
+                <form action="/aboutme/add" method="post">
+
+                    <h1 class="h3 my-4 fw-normal text-uppercase custom_bold-headline">New Milestone</h1>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="mileField" id="mileField" placeholder="Field of Work" required="required">
+                        <label for="mileField">Field of Work</label>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label for="mileType" class="form-label">Project category</label>
+                        <select name="mileType" id="mileType" required="required">
+                            <option value="Work Experience">Work Experience</option>
+                            <option value="Education">Education</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label for="mileDesc">Postion  description</label>
+                        <textarea class="form-control" name="mileDesc" id="mileDesc" rows="8" placeholder="About my workfield..."></textarea>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="cvDate" id="cvDate" placeholder="YYYY-MM till YYYY-MM" required="required">
+                        <label for="cvDate" class="form-label">Duration</label>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="milePlace" id="milePlace" placeholder="Company" required="required">
+                        <label for="milePlace">Place</label>
+                    </div>
+
+                    <button class="btn btn-primary w-100 py-2 mb-4 custom_button" type="submit">Add Milestone to CV</button>
+
+                </form>
+
+            </div>
+        {{else}}
+            <p>Sorry, you must be an Admin to add a new milestone!</p>
+        {{/if}}
+
+
+    {{else}}
+        <p>
+            Sorry, you must be logged in to add a new milestone.<br>
+            Please go to the <a href="/login">Login</a>page.
+        </p>
+    {{/if}}
+
+</div>

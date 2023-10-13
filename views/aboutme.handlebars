@@ -1,103 +1,100 @@
 <div id="main">
-
     <div class="container my-3">
 
-        <div>
-
-
-            <!-- Work Experience -->
-            <div class="d-flex row mb-5">
-                <div class="col-md-3">
-                    <h2 class="text-uppercase">Work </br> Experiences</h2>
-                </div>
-
-                <div class="d-none d-md-flex col-md-1">
-                    <div class="vr"></div>
-                </div>
-
-                <div class="col-md-8">
-                    <div class="d-flex">
-                        <ul class="list-group">
-                            <li class="list-unstyled pb-4">
-                                
-                                <p class="m-0 text-black-50 small custom_fw-light">2022-02 till now</p>
-                                <p class="m-0 text-uppercase mb-2 custom_bold-headline">Freelancer</p>
-                                <p class="m-0"><img src="/img/geo.svg" class="pe-1">Fachhochschule Kiel</p>
-                                <p class="m-0 custom_italic">Student assistant in editorial design and strategic communications.</p>
-                            </li>
-
-                            <li class="list-unstyled pb-4">
-                                <p class="m-0 text-black-50 small custom_fw-light">2020-2021</p>
-                                <p class="m-0 text-uppercase mb-2 custom_bold-headline">Final Artwork Designer</p>
-                                <p class="m-0"><img src="/img/geo.svg" class="pe-1">Adwork Werbeagentur</p>
-                                <p class="m-0 custom_italic">Design and adaptation of packaging up to final artwork according to style guide design guidelines and independent supervision of complete ranges (master design set-ups and design guidelines).</p>
-                            </li>
-
-                            <li class="list-unstyled pb-4">
-                                <p class="m-0 text-black-50 small custom_fw-light">2016-09 till 2017-07</p>
-                                <p class="m-0 text-uppercase mb-2 custom_bold-headline">Voluntary services in the field of culture and education</p>
-                                <p class="m-0"><img src="/img/geo.svg" class="pe-1">Volkshochschule Oldenburg</p>
-                                <p class="m-0 custom_italic">Public relations and print media design assistance.</p>
-                            </li>
-                            
-                        </ul>
-                    </div>
-
-
-
-                </div>
+        <!-- Work Experience -->
+        <div class="d-flex row mb-5">
+            <div class="col-md-3">
+                <h2 class="text-uppercase">Work </br> Experiences</h2>
             </div>
-            <!-- Work Experience -->
 
-
-
-
-
-
-            <!-- Education -->
-            <div class="d-flex row mb-5">
-                <div class="col-md-3">
-                    <h2 class="text-uppercase">Education</h2>
-                </div>
-
-                <div class="d-none d-md-flex col-md-1">
-                    <div class="vr"></div>
-                </div>
-
-                <div class="col-md-8">
-                    <div class="d-flex">
-                        <ul class="list-group">
-                            <li class="list-unstyled pb-4">
-                                <p class="m-0 text-black-50 small custom_fw-light">2023-08 till 2023-12</p>
-                                <p class="m-0 text-uppercase mb-2 custom_bold-headline">Semester Abroad at Jönköping University (Sweden)</p>
-                                <p class="m-0"><img src="/img/geo.svg" class="pe-1">Jönköping University</p>
-                            </li>
-
-                            <li class="list-unstyled pb-4">
-                                <p class="m-0 text-black-50 small custom_fw-light">2021-09 till 2025-03</p>
-                                <p class="m-0 text-uppercase mb-2 custom_bold-headline">Bachelor’s Degree Multimedia Production</p>
-                                <p class="m-0"><img src="/img/geo.svg" class="pe-1">Fachhochschule Kiel</p>
-                                <p class="m-0 custom_italic">Design, computer science, media theory, media technology, journalism, media studies, media business and media conception.</p>
-                            </li>
-
-                            <li class="list-unstyled pb-4">
-                                <p class="m-0 text-black-50 small custom_fw-light">2017-08 till 2020-07</p>
-                                <p class="m-0 text-uppercase mb-2 custom_bold-headline">Digital and Print Media Designer Trainee</p>
-                                <p class="m-0"><img src="/img/geo.svg" class="pe-1">Kehrer Werbeagentur</p>
-                                <p class="m-0 custom_italic">Conception and design of print media and websites, branding and packaging, data preparation in pre-press as well as full support for recurring projects, customer and supplier liaison.</p>
-                            </li>
-                            
-                        </ul>
-                    </div>
-
-
-
-                </div>
+            <div class="d-none d-md-flex col-md-1 justify-content-center">
+                <div class="vr"></div>
             </div>
-            <!-- Education -->
+
+            <div class="col-md-8">
+                <div class="d-flex">
+                    <ul class="list-group">
+
+                        {{#each milestone}}
+                            {{#if (theTypeWE cvType)}}
+                                <li class="list-unstyled pb-4">
+                                    <p class="m-0 text-black-50 small custom_fw-light">{{cvDate}}</p>
+                                    <p class="m-0 text-uppercase mb-2 custom_bold-headline">{{cvFieldOfWork}}</p>
+                                    <p class="m-0"><img src="/img/geo.svg" class="pe-1">{{cvPlace}}</p>
+                                    <p class="m-0 custom_italic">{{cvDesc}}</p>
+
+                                    {{#if ../isAdmin}}
+                                        <a href="/aboutme/update/{{cvid}}" class="btn btn-outline-success btn-sm me-2 my-2" role="button" aria-pressed="true">Update milestone</a>
+                                        <a href="/aboutme/delete/{{cvid}}" class="btn btn-outline-danger btn-sm me-2 my-2" role="button" aria-pressed="true">Delete milestone</a>
+                                    {{/if}}
+
+                                </li>
+                            {{/if}}
+                        {{/each}}
+        
+                    </ul>
+                </div>
 
 
+
+            </div>
         </div>
+        <!-- Work Experience -->
+
+
+
+
+
+
+        <!-- Education -->
+        <div class="d-flex row mb-5">
+            <div class="col-md-3">
+                <h2 class="text-uppercase">Education</h2>
+            </div>
+
+            <div class="d-none d-md-flex col-md-1 justify-content-center">
+                <div class="vr"></div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="d-flex">
+                    <ul class="list-group">
+
+                        {{#each milestone}}
+                            {{#if (theTypeE cvType)}}
+                                <li class="list-unstyled pb-4">
+                                    <p class="m-0 text-black-50 small custom_fw-light">{{cvDate}}</p>
+                                    <p class="m-0 text-uppercase mb-2 custom_bold-headline">{{cvFieldOfWork}}</p>
+                                    <p class="m-0"><img src="/img/geo.svg" class="pe-1">{{cvPlace}}</p>
+                                    <p class="m-0 custom_italic">{{cvDesc}}</p>
+                                    
+                                    {{#if ../isAdmin}}
+                                        <a href="/aboutme/update/{{cvid}}" class="btn btn-outline-success btn-sm me-2 my-2" role="button" aria-pressed="true">Update milestone</a>
+                                        <a href="/aboutme/delete/{{cvid}}" class="btn btn-outline-danger btn-sm me-2 my-2" role="button" aria-pressed="true">Delete milestone</a>
+                                    {{/if}}
+                                    
+                                </li>
+                            {{/if}}
+                        {{/each}}
+
+                        {{#if isAdmin}}
+                            <a href="/aboutme/add" class="d-inline list-unstyled text-decoration-none text-black-50 pb-4">
+                                <div class="d-flex justify-content-center align-items-center border px-3">
+                                    <p class="m-0 pe-2 py-2 custom_bold-headline">+</p>
+                                    <p class="m-0 text-uppercase custom_bold-headline">Add a new Milestone</p>
+                                </div>
+                            </a>
+                        {{/if}}
+                        
+                    </ul>
+                </div>
+
+
+
+            </div>
+        </div>
+        <!-- Education -->
+
 
     </div>
 </div>

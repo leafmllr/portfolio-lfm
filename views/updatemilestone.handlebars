@@ -1,0 +1,58 @@
+<div id="main">
+
+    {{#if isLoggedIn}}
+
+
+        {{#if isAdmin}}
+            <div class="container col-md-6 col-lg-4 my-5 px-4">
+
+                <form action="/aboutme/update/{{milestone.cvid}}" method="post">
+
+                    <h1 class="h3 my-4 fw-normal text-uppercase custom_bold-headline">Update <br> {{milestone.cvFieldOfWork}}</h1>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="newMileField" id="newMileField" value="{{milestone.cvFieldOfWork}}" required="required">
+                        <label for="newMileField">Field of Work</label>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label for="newMileType" class="form-label">Project category</label>
+                        <select name="newMileType" id="newMileType" required="required">
+                            <option value="Work Experience" {{#if (theTypeWE milestone.cvType)}} selected="selected" {{/if}}>Work Experience</option>
+                            <option value="Education" {{#if (theTypeE milestone.cvType)}} selected="selected" {{/if}}>Education</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label for="newMileDesc">Postion  description</label>
+                        <textarea class="form-control" name="newMileDesc" id="newMileDesc" rows="8">{{milestone.cvDesc}}</textarea>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="newCvDate" id="newCvDate" value="{{milestone.cvDate}}" required="required">
+                        <label for="newCvDate">Duration</label>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input class="form-control" name="newMilePlace" id="newMilePlace" value="{{milestone.cvPlace}}" required="required">
+                        <label for="newMilePlace">Place</label>
+                    </div>
+
+                    <button class="btn btn-primary w-100 py-2 mb-4 custom_button" type="submit">Update Milestone</button>
+
+                </form>
+
+            </div>
+        {{else}}
+            <p>Sorry, you must be an Admin to update a milestone!</p>
+        {{/if}}
+
+
+    {{else}}
+        <p>
+            Sorry, you must be logged in to update a milestone.<br>
+            Please go to the <a href="/login">Login</a>page.
+        </p>
+    {{/if}}
+
+</div>
