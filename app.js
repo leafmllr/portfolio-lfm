@@ -340,18 +340,18 @@ db.run ("CREATE TABLE categories (categoryid INTEGER PRIMARY KEY AUTOINCREMENT, 
 })
 
 // creates table users at startup
-db.run ("CREATE TABLE users (userID INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, userPassword TEXT NOT NULL)", (error) => {
+db.run ("CREATE TABLE users (userID INTEGER PRIMARY KEY AUTOINCREMENT, userName TEXT NOT NULL, userPassword TEXT NOT NULL, userAdmin INTEGER NOT NULL)", (error) => {
   if(error) {
     console.log("ERROR: ", error)
   } else {
     const users = [
-      {"id":"1", "name":"leafmllr", "password":"5678"},
-      {"id":"2", "name":"christoffel", "password":"1234"},
+      {"id":"1", "name":"admin", "password":"$2b$12$nEpyyeoTs6RYGgS5O8NPWuO9Ri9d9E4s8KvZgngV8ZwIqUi45Lzya", "admin":1},
+      {"id":"2", "name":"leafmllr", "password":"$2b$12$XOvTOv8jvi2N82JoHxtXduFbOZSAC.M8kHAcyOsIkBrcP9dohRyhm", "admin":0},
     ]
 
     // insert users
     users.forEach( (oneUser) => {
-      db.run("INSERT INTO users (userID, userName, userPassword) VALUES (?, ?, ?)", [oneUser.id, oneUser.name, oneUser.password], (error) => {
+      db.run("INSERT INTO users (userID, userName, userPassword, userAdmin) VALUES (?, ?, ?, ?)", [oneUser.id, oneUser.name, oneUser.password, oneUser.admin], (error) => {
         if(error) {
           console.log("ERROR: ", error)
         } else {
@@ -381,6 +381,17 @@ db.run ("CREATE TABLE users (userID INTEGER PRIMARY KEY AUTOINCREMENT, userName 
 
 // defines route "/login"
 app.get('/login', (request, response) => {
+console.log("SESSION: ", request.session)
+
+/* saltRounds = 12
+bcrypt.hash("nocoding", saltRounds, function(error, hash) {
+  if (error) {
+    console.log("Error encrypting the password: ", error)
+  } else {
+    console.log("Hashed password (GENERATE only ONCE: ", hash)
+  }
+}); */
+
   const model = {
     isAdmin: request.session.isAdmin,
     isLoggedIn: request.session.isLoggedIn,
@@ -395,23 +406,43 @@ app.post('/login', (request, response) => {
   const un = request.body.un
   const pw = request.body.pw
 
-  db.all("SELECT * FROM users WHERE userName=? AND userPassword=?", [un], [pw], function(error, User) {
+
+  db.get("SELECT * FROM users WHERE userName=?", [un], function(error, user) {
+    // console.log("User Data: ", user.userPassword);
+
     if (error) {
-      console.log("Nice try!")
-  
-      request.session.isAdmin = false;
-      request.session.isLoggedIn = false;
-      request.session.name = "";
+
+      console.log("DB ERROR: ", error);
       response.redirect('/login');
+
     } else {
-      console.log("Welcome!")
+
+      bcrypt.compare(pw, user.userPassword, function (error, result) {
+        // console.log("RESULT: ", result)
+        // console.log("LoginPW: ", pw)
   
-      request.session.isAdmin = true;
-      request.session.isLoggedIn = true;
-      request.session.name = un;
-      response.redirect('/');
+        if (error) {
+          console.log("Error in comparing encryption: ", error)
+        } else if (result == true) {
+          console.log("User is logged in!")
+    
+          request.session.isAdmin = (user.userAdmin == 1);
+          request.session.isLoggedIn = true;
+          request.session.name = user.userName;
+    
+          response.redirect('/');
+        } else {
+          console.log("User is NOT logged in!")
+          response.redirect('/login');
+        }
+      })
+      
     }
+
+    
   })
+
+
 });
 
 // defines route "/logout"
