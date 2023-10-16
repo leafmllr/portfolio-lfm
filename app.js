@@ -423,6 +423,7 @@ app.post('/login', (request, response) => {
   
         if (error) {
           console.log("Error in comparing encryption: ", error)
+
         } else if (result == true) {
           console.log("User is logged in!")
     
@@ -436,7 +437,7 @@ app.post('/login', (request, response) => {
           response.redirect('/login');
         }
       })
-      
+
     }
 
     
@@ -490,6 +491,82 @@ app.get('/', (request, response) => {
       response.render('portfolio.handlebars', model)
     }
   })
+});
+
+// defines route "/portfolio"
+app.get('/portfolio', (request, response) => {
+
+  // Number of projects per side
+  const numberPerPage = 3;
+
+  // Number of all projects per SQL-Request to calculate pagination
+  db.get("SELECT COUNT (*) AS projectCount FROM projects", (countError, countRow) => {
+    if (countError) {
+      const model = {
+        dbError: true,
+        theError: countError,
+        projects: [],
+        isAdmin: request.session.isAdmin,
+        isLoggedIn: request.session.isLoggedIn,
+        name: request.session.name,
+      };
+
+      response.render('portfolio.handlebars', model);
+    } else {
+      // Number of all projects
+      const totalProjectCount = countRow.projectCount;
+      // page from the URL or page 1
+      const page = parseInt(request.query.page) || 1;
+      // Calculating the offset value
+      const offset = (page - 1) * numberPerPage;
+      // Calculating number of pages
+      const totalPages = Math.ceil(totalProjectCount / numberPerPage);
+      // Erzeuge ein Array von Seitenzahlen von 1 bis totalPages
+      const pages = Array.from({ length: totalPages }, (_, i) => i + 1);  
+
+      
+      const nextPage = page + 1;
+      const prevPage = (page - 1) ? page - 1 : null;
+
+      // getting projects for the current page
+      db.all("SELECT * FROM projects JOIN categories ON projects.categoryfk = categories.categoryid LIMIT ? OFFSET ?", [numberPerPage, offset], function (error, theProjects) {
+        if (error) {
+          const model = {
+            dbError: true,
+            theError: error,
+            projects: [],
+            isAdmin: request.session.isAdmin,
+            isLoggedIn: request.session.isLoggedIn,
+            name: request.session.name,
+          }
+    
+          // renders the page with the model
+          response.render('portfolio.handlebars', model)
+        } else {
+
+          console.log("Anzahl der Seiten: ", totalPages)
+          const model = {
+            dbError: false,
+            theError: "",
+            projects: theProjects,
+            isAdmin: request.session.isAdmin,
+            isLoggedIn: request.session.isLoggedIn,
+            name: request.session.name,
+            currentPage: page,
+            totalPages,
+            pages,
+            nextPage,
+            prevPage,
+          };
+    
+          // renders the page with the model
+          response.render('portfolio.handlebars', model)
+        } 
+    
+      });
+    }
+  });
+  
 });
 
 // defines route "/contact"

@@ -71,4 +71,34 @@
     <!-- CARDBOARD GROUP -->
 
 
+
+
+
+    <!-- PAGINATION -->
+
+    <nav aria-label="Page navigation portfolio" class="d-flex justify-content-center border-0">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link text-dark border-0" href="/portfolio?page={{prevPage}}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            {{#each pages}}
+                <li class="page-item {{#if (currentPage)}}active{{/if}}">
+                    <a class="page-link text-dark border-0" href="/portfolio?page={{this}}">{{this}}</a>
+                </li>
+            {{/each}}
+
+            <li class="page-item">
+                <a class="page-link text-dark border-0" href="/portfolio?page={{nextPage}}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- PAGINATION -->
+
+
 </div>
