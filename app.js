@@ -134,18 +134,12 @@ db.run("CREATE TABLE projects (projectid INTEGER PRIMARY KEY AUTOINCREMENT, proj
         "url":"LoveIsAJourney.jpg",
         "categoryfk":"5"},
       {"id":"6",
-        "title":"Campusmagazine viel. | 26",
-        "desc":"",
-        "date":"2023-02",
-        "url":"vorlage_projects.jpg",
-        "categoryfk":"5"},
-      {"id":"7",
         "title":"Campusmagazine viel. | 27",
         "desc":"As part of a team of five, I was involved in the editorial design of the campus magazine of the Kiel University of Applied Sciences. Our work included the conception and design of columns, polls and photo series, all centred around the theme of 'colour'. The challenge was to seamlessly integrate colour as a core element in the design of each page, ensuring a harmonious and effective reading experience.",
         "date":"2023-08",
         "url":"Campusmagazine-viel_27.jpg",
         "categoryfk":"5"},
-      {"id":"8",
+      {"id":"7",
         "title":"Wedding invitation card",
         "desc":"This wedding invitation card beautifully combines the beauty of autumn with a touch of elegance, using the vibrant colours of the season. Nature-inspired accents, including leaf motifs, are thoughtfully combined with clean and simple typography. The result is a harmonious balance of simplicity and playfulness that sets the perfect tone for an autumnal wedding celebration.",
         "date":"2023-08",
@@ -230,8 +224,7 @@ db.run("CREATE TABLE projectsSkills (proskillid INTEGER PRIMARY KEY AUTOINCREMEN
       {"id":"12", "projectid":"5", "skillid": "2"},
       {"id":"13", "projectid":"5", "skillid": "3"},
       {"id":"14", "projectid":"6", "skillid": "1"},
-      {"id":"15", "projectid":"7", "skillid": "1"},
-      {"id":"16", "projectid":"8", "skillid": "2"},
+      {"id":"15", "projectid":"7", "skillid": "2"},
     ]
 
     // insert projectsSkills
@@ -463,34 +456,7 @@ app.get('/logout', (request, response) => {
 
 // defines route "/"
 app.get('/', (request, response) => {
-  db.all("SELECT * FROM projects JOIN categories ON projects.categoryfk = categories.categoryid", function (error, theProjects) {
-    if(error) {
-      const model = {
-        dbError: true,
-        theError: error,
-        projects: [],
-        isAdmin: request.session.isAdmin,
-        isLoggedIn: request.session.isLoggedIn,
-        name: request.session.name,
-      }
-
-      // renders the page with the model
-      response.render('portfolio.handlebars', model)
-    }
-    else {
-      const model = {
-        dbError: false,
-        theError: "",
-        projects: theProjects,
-        isAdmin: request.session.isAdmin,
-        isLoggedIn: request.session.isLoggedIn,
-        name: request.session.name,
-      }
-
-      // renders the page with the model
-      response.render('portfolio.handlebars', model)
-    }
-  })
+  response.redirect('/portfolio');
 });
 
 // defines route "/portfolio"
